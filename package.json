@@ -1,0 +1,27 @@
+{
+  "name": "mongojs_cheerio_scrape_news",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sherry-W/mongojs_cheerio_scrape_news.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sherry-W/mongojs_cheerio_scrape_news/issues"
+  },
+  "homepage": "https://github.com/Sherry-W/mongojs_cheerio_scrape_news#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.13.4",
+    "mongojs": "^2.3.0",
+    "request": "^2.69.0",
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1"
+  }
+}
