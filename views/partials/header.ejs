@@ -1,0 +1,98 @@
+<style>
+	#welcomebar {
+		padding-top: 75px; 
+		/* padding-top: 5%;  */
+		padding-left: 15px;
+		color: white; 
+		font-size: 24px;
+		height: 120px;
+		z-index: 1029;
+	}
+	#showdate {
+		float: right;
+		padding-right: 15px;
+	}
+</style>
+
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+	<a class="navbar-brand" href="/">BS CRM</a>
+	
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+		<% if(session.role_id == 1) { %>
+			<li class="nav-item">
+				<a id="nav_accounts_rep" class="nav-link" href="/accounts_rep">Accounts</a>
+			</li>
+		<% } %>
+		<li class="nav-item">
+			<a id="nav_deals" class="nav-link" href="/deals">Deals</a>
+		</li>
+		<li class="nav-item">
+			<a id="nav_initnotes" class="nav-link" href="/initnotes">Notes</a>
+		</li>
+		<li class="nav-item dropdown">
+			<a id="nav_todo" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				To-Dos
+			</a>
+			<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+				<a class="dropdown-item" href="/todos">Planned</a>
+				<a class="dropdown-item" href="/overdue">Overdue</a>
+			</div>
+		</li>
+		<% if(session.role_id == 2) { %>
+			<li class="nav-item dropdown">
+				<a id="nav_manage" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Manage
+				</a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" href="/accounts">Accounts</a>
+					<a class="dropdown-item" href="/users">Users</a>
+				</div>
+			</li>
+		<% } %>
+		</ul>
+		<form class="form-inline my-2 my-lg-0" style="color: white">
+			<div class="btn-group">
+				<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fas fa-user-alt"></i> 
+					<% if(locals.session) { %>
+						<span class="align-baseline"><%= session.first_name %> <%= session.last_name %></span>
+					<% } %>
+				</button>
+				<div class="dropdown-menu dropdown-menu-right">
+					<a class="dropdown-item" href="/login">Log In</a>
+					<a class="dropdown-item" href="/signup">Sign Up</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item" href="/logout">Log Out</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</nav>
+
+<div id="welcomebar" class="bg-secondary fixed-top">
+		<% if(locals.session) { %>
+			<span class="align-baseline">Welcome, <%= session.first_name %>!</span>
+		<% } %></a>
+		<span id="showdate"></span>
+</div>
+					
+
+<script>
+	// Array of day names
+	var dayNames = new Array("Sunday","Monday","Tuesday","Wednesday",
+					"Thursday","Friday","Saturday");
+	// Array of month Names
+	var monthNames = new Array(
+	"January","February","March","April","May","June","July",
+	"August","September","October","November","December");
+
+	var now = new Date();
+	$('#showdate').text((dayNames[now.getDay()] + ", " + 
+	monthNames[now.getMonth()] + " " + 
+	now.getDate() + ", " + now.getFullYear()));
+</script>

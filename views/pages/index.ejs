@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include ../partials/head %>
+
+	<% include ../partials/style %>
+</head>
+<body>
+
+<!-- Tabs -->
+<section id="tabs">
+	<form method="GET" action='/scrape'>
+		<button type='submit' class='scrapebtn btn btn-danger'>
+			SCRAPE NEWS
+		</button>
+	</form>
+	<div class="container">
+	<h6 class="section-title h1">SF GATE</h6>
+	<div class="row">
+		<div class="col-xs-12 ">
+		<nav>
+			<div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+			<a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Articles</a>
+			<a class="nav-item nav-link" id="nav-fav-tab" data-toggle="tab" href="#nav-fav" role="tab" aria-controls="nav-fav" aria-selected="false"><i class='fas fa-heart'></i> Fav</a>
+			</div>
+		</nav>
+		<div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+			<div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+			<div id="news">
+				<% dat.forEach(function(data) { %>
+					<% if(data.length == 0) {%>
+						$("#news").text('Uh Oh. Looks like we don't have any fav articles.')
+					<% } else { %>
+						<!-- title -->
+						<div class='row'>
+							<div class='col'> 
+								<%= data.title %>
+							</div>
+						<!-- link -->
+							<div class='col-md-auto'>
+								<form target='_blank' action='<%= data.link %>'>
+									<input type='submit' class='btn btn-outline-light btn-sm' value='View Whole Article' />
+								</form>
+							</div>
+						<!-- add to fav -->
+							<div class='col-md-auto'>
+								<form method="GET" action='/fav/<%= data._id %>'>
+									<button type='submit' class='addFav btn btn-danger btn-sm'>
+										<i class='fas fa-heart'></i>
+									</button>
+								</form>
+							</div>
+						</div>
+					<% } %>
+				<% }); %>
+			</div>
+			</div>
+			<div class="tab-pane fade" id="nav-fav" role="tabpanel" aria-labelledby="nav-fav-tab">
+			<div id="favNews">
+				<% fav.forEach(function(data) { %>
+					<% if(data.length == 0) {%>
+						$("#news").text('Uh Oh. Looks like we don't have any fav articles.')
+					<% } else { %>
+						<!-- title -->
+						<div class='row'>
+							<div class='col'> 
+								<%= data.title %>
+							</div>
+						<!-- link -->
+							<div class='col-md-auto'>
+								<form target='_blank' action='<%= data.link %>'>
+									<input type='submit' class='btn btn-outline-light btn-sm' value='View Whole Article' />
+								</form>
+							</div>
+						<!-- edit/add notes -->
+							<div class='col-md-auto'>
+								<button type='button' class='edit btn btn-primary btn-sm' data-toggle='modal' data-target='#exampleModalCenter' data-id='<%= data._id %>'>
+									<i class='far fa-edit'></i>
+								</button>
+							</div>
+						<!-- remove fav -->
+							<div class='col-md-auto'>
+								<form method="GET" action='/unfav/<%= data._id %>'>
+									<button type='submit' class='removeFav btn btn-danger btn-sm'>
+										<i class='far fa-trash-alt'></i>
+									</button>
+								</form>
+							</div>
+						</div>
+					<% } %>
+				<% }); %>
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	</div>
+</section>
+<!-- ./Tabs -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+		<h5 class="modal-title" id="noteTitle"></h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		</div>
+			<div class="modal-body">
+
+				<div id="notes"></div>
+						<div class='row'>
+							<div class='col' id="displayNote"> 
+								
+							</div>
+						<!-- delete note -->
+							<div class='col-md-auto'>
+								<form id="deleteNote" method="GET" >
+								</form>
+							</div>
+						</div>
+
+				<div id="addNotes">
+					<form id="noteForm" method="POST">
+						<div class="form-group">
+							<textarea class="form-control" id="enterNote" name="note" rows="3" placeholder="enter notes here..."></textarea>
+						</div>
+						<button type="submit" class="btn btn-success btn-sm">Submit</button>
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+	</div>
+	</div>
+</div>
+
+
+
+	<!-- <a href="/">Home Page</a>
+	<a href="/all">All API</a>
+	<a href="/scrape">Scrape</a>
+	<a href="/showfav">Fav API</a> -->
+
+
+<% include ../partials/footer %>
+
+<script>
+$(document).on("click", ".edit", function() {
+  var thisId = $(this).attr("data-id");
+  $('#noteForm').attr('action', '/addnote/' + thisId)
+  $('#noteTitle').text('Add Notes: ' + thisId)
+  $.ajax({
+    type: "GET",
+    url: "/find/" + thisId
+  }).then(function(data) {
+	//   console.log(data.note);
+	  if (data.note == undefined) {
+		$("#displayNote").text('No notes yet.');
+	  } else  {
+		$("#displayNote").text(data.note);
+		$('#deleteNote').attr('action', '/delete/' + thisId);
+		$('#deleteNote').prepend("<button type='submit' class='delete btn btn-danger btn-sm'><i class='far fa-trash-alt'></i></button>");
+	  }
+    });
+	$("#displayNote").empty();
+	$('#deleteNote').empty();
+});
+</script>
+
+</body>
+</html>
