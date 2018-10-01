@@ -35,7 +35,7 @@ db.on("error", function(error) {
 // Routes
 // ======
 
-// Simple index route
+// Index route
 app.get("/", function(req, res) {
   db.news.find({}, function(error, data) {
     db.news.find({"fav": true}, function(error, fav) {
@@ -52,13 +52,7 @@ app.get("/", function(req, res) {
   });
 });
 
-// ==================
-
-// Route 1
-// =======
-// This route will retrieve all of the data
-// from the scrapedData collection as a json (this will be populated
-// by the data you scrape using the next route)
+// All
 app.get("/all", function(req, res) {
   db.news.find({}, function(error, data) {
     if (error) {
@@ -70,6 +64,7 @@ app.get("/all", function(req, res) {
   });
 });
 
+// Show only Fav
 app.get("/showfav", function(req, res) {
   db.news.find({"fav": true}, function(error, fav) {
     if (error) {
@@ -81,41 +76,25 @@ app.get("/showfav", function(req, res) {
   });
 });
 
-// Route 2
-// =======
-// When you visit this route, the server will
-// scrape data from the site of your choice, and save it to
-// MongoDB.
-// TIP: Think back to how you pushed website data
-// into an empty array in the last class. How do you
-// push it into a MongoDB collection instead?
+// Scrapr News
 app.get("/scrape", function(req, res) {
-  // Make a request for the news section of `ycombinator`
   request("https://www.sfgate.com/", function(error, response, html) {
-    // Load the html body from request into cheerio
     var $ = cheerio.load(html);
-    // For each element with a "title" class
     $("h4").each(function(i, element) {
-      // Save the text and href of each link enclosed in the current element
       var link = $(element).children('a').attr("href");
       var title = $(element).children('a').text();
-      // var list = $(element).parent().siblings('ul').children('li');
-      // var para = $(element).parent().siblings('p');
 
-      // If this found element had both a title and a link
       if (link && title && link.indexOf(".com") == -1) {
-        // Insert the data in the scrapedData db
+        
         db.news.insert({
           title: title,
           link: "https://www.sfgate.com" + link
         },
         function(err, inserted) {
           if (err) {
-            // Log the error if one is encountered during the query
             console.log(err);
           }
           else {
-            // Otherwise, log the inserted data
             console.log(inserted);
           }
         });
@@ -123,14 +102,11 @@ app.get("/scrape", function(req, res) {
     });
   });
 
-  // Send a "Scrape Complete" message to the browser
   // res.send("Scrape Complete");
   console.log("Scrape Complete");
 });
 
-// ==================
-
-// Mark a book as having been read
+// Set Fav
 app.get("/fav/:id", function(req, res) {
   // Remember: when searching by an id, the id needs to be passed in
   // as (mongojs.ObjectId(IdYouWantToFind))
@@ -142,14 +118,13 @@ app.get("/fav/:id", function(req, res) {
       _id: mongojs.ObjectId(req.params.id)
     },
     {
-      // Set "read" to true for the book we specified
       $set: {
         fav: true
       }
     },
-    // When that's done, run this function
+
     function(error, fav) {
-      // show any errors
+      
       if (error) {
         console.log(error);
         res.send(error);
@@ -166,7 +141,7 @@ app.get("/fav/:id", function(req, res) {
   );
 });
 
-// Mark a book as having been not read
+// Remove Fav
 app.get("/unfav/:id", function(req, res) {
   // Remember: when searching by an id, the id needs to be passed in
   // as (mongojs.ObjectId(IdYouWantToFind))
@@ -178,12 +153,11 @@ app.get("/unfav/:id", function(req, res) {
       _id: mongojs.ObjectId(req.params.id)
     },
     {
-      // Set "read" to false for the book we specified
       $set: {
         fav: false
       }
     },
-    // When that's done, run this function
+
     function(error, fav) {
       // Show any errors
       if (error) {
@@ -202,26 +176,20 @@ app.get("/unfav/:id", function(req, res) {
   );
 });
 
-// Update just one note by an id
+// Add note
 app.post("/addnote/:id", function(req, res) {
-  // When searching by an id, the id needs to be passed in
-  // as (mongojs.ObjectId(IdYouWantToFind))
-    // console.log(req.body.note, req.body);
-  // Update the note that matches the object id
+
   db.news.update(
     {
       _id: mongojs.ObjectId(req.params.id)
     },
     {
-      // Set the title, note and modified parameters
-      // sent in the req body.
       $set: {
         note: req.body.note,
         modified: Date.now()
       }
     },
     function(error, edited) {
-      // Log any errors from mongojs
       if (error) {
         console.log(error);
         res.send(error);
@@ -236,19 +204,15 @@ app.post("/addnote/:id", function(req, res) {
   );
 });
 
-// Select just one note by an id
+// Find ID
 app.get("/find/:id", function(req, res) {
-  // When searching by an id, the id needs to be passed in
-  // as (mongojs.ObjectId(IdYouWantToFind))
 
-  // Find just one result in the notes collection
   db.news.findOne(
     {
-      // Using the id in the url
       _id: mongojs.ObjectId(req.params.id)
     },
     function(error, found) {
-      // log any errors
+
       if (error) {
         console.log(error);
         res.send(error);
@@ -266,15 +230,14 @@ app.get("/find/:id", function(req, res) {
   );
 });
 
-// Delete One from the DB
+
+// Delete note
 app.get("/delete/:id", function(req, res) {
-  // Remove a note using the objectID
   db.news.remove(
     {
       _id: mongojs.ObjectID(req.params.id)
     },
     function(error, removed) {
-      // Log any errors from mongojs
       if (error) {
         console.log(error);
         res.send(error);
